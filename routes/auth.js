@@ -21,20 +21,61 @@ router.post("/register", async (req, res) => {
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) return res.status(400).send("Email already exists");
 
+  const contactExist = await User.findOne({ contact1: req.body.contact1 });
+  if (contactExist) return res.status(400).send("Contact already exist!");
+
   // Hash the password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  // Contact Validation
+  const contactValidation = (contact) => {
+    if (!contact) {
+      return false;
+    }
+    if (contact.toString().length !== 10) {
+      console.log(contact);
+      return "10digit";
+    }
+    if (
+      contact.toString()[0] != 9 &&
+      contact.toString()[0] != 8 &&
+      contact.toString()[0] != 7 &&
+      contact.toString()[0] != 6
+    ) {
+      return "9876";
+    }
+  };
+  const c1 = contactValidation(req.body.contact1);
+  const c2 = contactValidation(req.body.contact2);
+  const c3 = contactValidation(req.body.contact3);
+
+  if (c1 === "10digit" || c2 === "10digit" || c3 === "10digit") {
+    return res.status(406).send("Phone number can only be of 10 digits");
+  }
+  if (c1 === "9876" || c2 === "9876" || c3 === "9876") {
+    return res
+      .status(406)
+      .send("Phone number can only start with 9, 8, 7 or 6");
+  }
 
   // Create a new user
   const user = new User({
     name: req.body.name,
     email: req.body.email,
     password: hashedPassword,
+    contact1: req.body.contact1,
+    contact2: req.body.contact2,
+    contact3: req.body.contact3,
   });
   try {
     const savedUser = await user.save();
-    // res.send(savedUser);
-    res.send({ savedUser: savedUser._id });
+    // JWT
+    // Create and assign a token
+    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+    res
+      .header("auth-token", token)
+      .json({ savedUser: savedUser._id, token: token });
   } catch (err) {
     res.status(400).send(err);
   }
