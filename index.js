@@ -32,5 +32,9 @@ app.use("/api/user", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/contacts", userRoutes);
 
+app.get("/", (req, res) => {
+  res.status(200).send("<h1>Welcome, It's working Hoorayy</h1>");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server Up and running at port ${PORT}`));
