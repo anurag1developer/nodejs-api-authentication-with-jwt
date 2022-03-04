@@ -8,10 +8,6 @@ const { loginValidation, registerValidation } = require("../validation");
 router.post("/register", async (req, res) => {
   // Lets validate the data before we make a user
 
-  // const { error } = schema.validate(req.body);
-
-  // res.send(error.details[0].message);
-
   // Validation from validation.js
   const { error } = registerValidation(req.body);
   // res.send(error);
@@ -69,13 +65,14 @@ router.post("/register", async (req, res) => {
     contact3: req.body.contact3,
   });
   try {
-    const savedUser = await user.save();
     // JWT
     // Create and assign a token
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+    user.tokens.push(token);
+    const savedUser = await user.save();
     res
       .header("auth-token", token)
-      .json({ savedUser: savedUser._id, token: token });
+      .json({ savedUser: savedUser, token: token });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -99,7 +96,24 @@ router.post("/login", async (req, res) => {
   // JWT
   // Create and assign a token
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-  res.header("auth-token", token).send(token);
+  await user.tokens.push(token);
+  await user.save();
+  res.header("auth-token", token).json({ success: "Logged In!", user: user });
+});
+
+router.post("/logout", async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.body.userId });
+    if (!user) return res.status(400).send("User not found");
+    if (user.tokens.length === 0) {
+      return res.status(200).send("you're not logged in");
+    }
+    await user.tokens.pop();
+    await user.save();
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;
