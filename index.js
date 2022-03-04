@@ -16,7 +16,7 @@ dotenv.config();
 
 // Connect to DB
 // console.log(typeof process.env.mongodbURL); // string
-mongoose.connect(process.env.Read_Only_DB_URL, () => {
+mongoose.connect(process.env.DB_URL, () => {
   console.log("Connected to DB!");
 });
 
