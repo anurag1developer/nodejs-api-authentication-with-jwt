@@ -16,7 +16,13 @@ dotenv.config();
 
 // Connect to DB
 // console.log(typeof process.env.mongodbURL); // string
-mongoose.connect(process.env.mongodbURL, () => console.log("Connected to DB!"));
+mongoose.connect(process.env.Read_Only_DB_URL, () => {
+  console.log("Connected to DB!");
+});
+
+// mongoose.connect(process.env.Read_and_Write_DB_URL, () =>
+//   console.log("Connected to DB!")
+// );
 
 // Middlewares
 app.use(express.json());

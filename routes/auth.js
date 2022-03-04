@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
       return false;
     }
     if (contact.toString().length !== 10) {
-      console.log(contact);
+      // console.log(contact);
       return "10digit";
     }
     if (
