@@ -23,15 +23,12 @@ const userSchema = new mongoose.Schema({
   contact1: {
     type: Number,
     required: true,
-    unique: true,
   },
   contact2: {
     type: Number,
-    unique: true,
   },
   contact3: {
     type: Number,
-    unique: true,
   },
   tokens: {
     type: Array,
