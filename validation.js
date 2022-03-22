@@ -9,7 +9,7 @@ const registerValidation = (data) => {
     contact1: Joi.number().required(),
     contact2: Joi.number(),
     contact3: Joi.number(),
-    tokens: Joi.object(),
+    // tokens: Joi.object(),
   });
   return schema.validate(data);
 };

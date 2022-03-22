@@ -30,9 +30,9 @@ const userSchema = new mongoose.Schema({
   contact3: {
     type: Number,
   },
-  tokens: {
-    type: Array,
-  },
+  // tokens: {
+  //   type: Array,
+  // },
   date: {
     type: Date,
     default: Date.now(),

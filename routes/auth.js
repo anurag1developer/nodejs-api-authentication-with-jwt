@@ -2,6 +2,10 @@ const router = require("express").Router();
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
+const verify = require("./verifyToken");
+const authorization = require("./authorization");
+
 // Validation
 const { loginValidation, registerValidation } = require("../validation");
 
@@ -17,8 +21,8 @@ router.post("/register", async (req, res) => {
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) return res.status(400).send("Email already exists");
 
-  const contactExist = await User.findOne({ contact1: req.body.contact1 });
-  if (contactExist) return res.status(400).send("Contact already exist!");
+  // const contactExist = await User.findOne({ contact1: req.body.contact1 });
+  // if (contactExist) return res.status(400).send("Contact already exist!");
 
   // Hash the password
   const salt = await bcrypt.genSalt(10);
@@ -68,7 +72,7 @@ router.post("/register", async (req, res) => {
     // JWT
     // Create and assign a token
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-    user.tokens.push(token);
+    // user.tokens.push(token);
     const savedUser = await user.save();
     res
       .header("auth-token", token)
@@ -96,24 +100,32 @@ router.post("/login", async (req, res) => {
   // JWT
   // Create and assign a token
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-  await user.tokens.push(token);
+  // await user.tokens.push(token);
   await user.save();
   res.header("auth-token", token).json({ success: "Logged In!", user: user });
 });
 
-router.post("/logout", async (req, res) => {
-  try {
-    const user = await User.findOne({ _id: req.body.userId });
-    if (!user) return res.status(400).send("User not found");
-    if (user.tokens.length === 0) {
-      return res.status(200).send("you're not logged in");
-    }
-    await user.tokens.pop();
-    await user.save();
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json(err);
+router.post("/logout", verify, async (req, res) => {
+  // try {
+  const user = await User.findOne({ _id: req.body.userId });
+  if (!user) return res.status(400).send("User not found");
+
+  const ownerToken = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+  const loginToken = req.header("auth-token");
+
+  const loginTokenVerified = jwt.verify(loginToken, process.env.TOKEN_SECRET);
+  const ownerTokenVerified = jwt.verify(ownerToken, process.env.TOKEN_SECRET);
+
+  if (loginTokenVerified._id !== ownerTokenVerified._id) {
+    return res.status(401).send("Access Denied");
   }
+
+  res.removeHeader("auth-token");
+  const isToken = req.header("auth-token");
+  res.json({ tokenStillExist: isToken });
+  // } catch (err) {
+  //   res.status(500).json(err);
+  // }
 });
 
 module.exports = router;

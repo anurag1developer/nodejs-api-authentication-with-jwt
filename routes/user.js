@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const verify = require("./verifyToken");
+const authorization = require("./authorization");
 const User = require("../model/User");
 
 // update contacts
-router.put("/:userId", verify, async (req, res) => {
+router.put("/:userId", verify, authorization, async (req, res) => {
   const user = await User.findById(req.params.userId);
   if (!user) {
     return res.status(200).send("User not found");
@@ -44,7 +45,7 @@ router.put("/:userId", verify, async (req, res) => {
 });
 
 // get contacts
-router.get("/:userId", verify, async (req, res) => {
+router.get("/:userId", verify, authorization, async (req, res) => {
   const user = await User.findById(req.params.userId);
   if (!user) {
     return res.status(200).send("User not found");
