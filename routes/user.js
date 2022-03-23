@@ -57,4 +57,16 @@ router.get("/:userId", verify, authorization, async (req, res) => {
   });
 });
 
+router.put("/:userId/accessed", verify, authorization, async (req, res) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) {
+    return res.status(200).send("User not found");
+  }
+  await user.accessed.push(req.body.accessed);
+  await user.save();
+  res.status(200).json({
+    success: `accessed ${user.accessed.length} times`,
+    accessed: user.accessed,
+  });
+});
 module.exports = router;

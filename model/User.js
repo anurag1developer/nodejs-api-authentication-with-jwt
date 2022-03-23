@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  accessed: {
+    type: Array,
+    minLength: 100,
+  },
 });
 
 const User = mongoose.model("User", userSchema);
