@@ -63,12 +63,11 @@ router.put("/:userId/accessed", verify, authorization, async (req, res) => {
     return res.status(200).send("User not found");
   }
   if (user.accessed.length >= 12) {
-    return res
-      .status(401)
-      .json({
-        success: false,
-        forbidden: "You can't accessed more than 12 times",
-      });
+    return res.status(401).json({
+      success: false,
+      accessed: `accessed ${user.accessed.length} times`,
+      forbidden: "You can't accessed more than 12 times",
+    });
   }
   await user.accessed.push(req.body.accessed);
   await user.save();
