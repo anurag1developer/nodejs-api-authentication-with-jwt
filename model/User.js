@@ -39,7 +39,6 @@ const userSchema = new mongoose.Schema({
   },
   accessed: {
     type: Array,
-    minLength: 100,
   },
 });
 
